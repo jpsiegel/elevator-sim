@@ -25,5 +25,5 @@ We store a snapshot of the state of the simulation when a relevant demand was cr
 Also, a simple test was added to check the database connection with the API.
 
 #### Note
-The system was designed in a containerized fashion, to be able to deploy it easily in a production environment.
+The system was designed in a containerized fashion, to be able to deploy it easily in a production environment (see docker-compose.yml).
 The logic was separated as a different service for the simulations and for the app, since the simulation could be very resource heavy and we dont want to overload the backend.
