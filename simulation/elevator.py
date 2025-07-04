@@ -18,6 +18,7 @@ class Elevator:
             floors: Valid floor numbers (1, 2, 3, ..., 10)
             speed_floors_per_sec: Constant speed of elevator in floors per second
             base_floor: floor at street level, starting point
+            simulation: parent simulation object
         """
         self.env = env
         self.floors = floors
@@ -106,7 +107,7 @@ class Elevator:
                 print(f"[{self.env.now:.1f}] Elevator vacant, going to floor {next_floor}")
                 yield self.env.process(self.move_to(next_floor))
 
-              # 3. Use prediction from a model
+              # 3. Use next floor prediction from a model
               # WIP
 
               if self.idle_start_time is None:
@@ -125,7 +126,7 @@ class Elevator:
         """
         total = sum(histogram.values())
         if total == 0:
-            return None  # or a default floor
+            return None
 
         weighted_sum = sum(floor * count for floor, count in histogram.items())
         return weighted_sum / total
@@ -193,7 +194,6 @@ class Elevator:
             "distance_to_center_of_mass": center_of_mass_distance,
             "next_floor_requested": None
         }
-        print("snapshot created", self.last_snapshot)
 
     def post_snapshot(self):
         """
@@ -216,12 +216,12 @@ class Elevator:
         if not self.last_snapshot:
             raise ValueError("No snapshot to store!")
 
-        # api_url = os.getenv("API_BASE_URL", "http://localhost:8000")
-        # endpoint = f"{api_url}/elevator_request"
-        # response = requests.post(endpoint, json=self.last_snapshot)
+        api_url = os.getenv("API_BASE_URL", "http://localhost:8000")
+        endpoint = f"{api_url}/elevator_request"
+        response = requests.post(endpoint, json=self.last_snapshot)
 
-        # if response.status_code != 200:
-        #     raise Exception(f"Failed to post elevator request: {response.status_code} {response.text}")
-        print(f"[{self.env.now:.1f}] Snapshot posted: {self.last_snapshot}")
+        if response.status_code != 200:
+            raise Exception(f"Failed to post elevator request: {response.status_code} {response.text}")
+        print(f"[SYS] Snapshot posted! {self.last_snapshot}")
 
 
