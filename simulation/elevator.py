@@ -27,6 +27,7 @@ class Elevator:
         self.current_floor = base_floor
         self.task_queue = deque()
         self.moving = False
+        self.last_floor = None
 
         # Start the elevator process
         self.process = env.process(self.run())
@@ -55,6 +56,7 @@ class Elevator:
         if floor_diff == 0:
             return  # Already at floor
         travel_time = floor_diff / self.speed
+        self.last_floor = self.current_floor
 
         # Move event
         self.moving = True
@@ -96,42 +98,43 @@ class Elevator:
                 print(f"[{self.env.now:.1f}] Elevator vacant, going to floor {next_floor}")
                 yield self.env.process(self.move_to(next_floor))
 
-              # Here the elevator is vacant waiting for next requested floor,
-              # save a snapshot
+              # 3. Use prediction from a model
+              # WIP
 
-              self.save_snapshot(self.current_floor, None, None)
+              # Here the elevator is vacant waiting for next requested floor,
+              # so save a snapshot
+              self.save_snapshot()
 
               yield self.env.timeout(DEFAULT_CHECK_TIME)
 
-    def save_snapshot(self, current_floor: int, last_floor: int, time_idle: float):
+    def save_snapshot(self):
         """
         Captures elevator state when idle and relevant features.
         Stores the data with expected backend format, but in memory to add label later.
         """
-        # timestamp = self.start_datetime + timedelta(seconds=self.env.now)
+        #timestamp = self.start_datetime + timedelta(seconds=self.env.now)
 
-        # # Features to compute
-        # histogram = self.get_floor_demand_histogram()
-        # entropy = self.compute_entropy(histogram)
-        # hot_floor = self.get_hot_floor_last_30s()
-        # mean_floor = self.compute_mean_floor(histogram)
-        # center_of_mass = self.compute_center_of_mass_distance(current_floor, histogram)
+        # Features to compute
+        #histogram = self.get_floor_demand_histogram()
+        #entropy = self.compute_entropy(histogram)
+        #hot_floor = self.get_hot_floor_last_30s()
+        #mean_floor = self.compute_mean_floor(histogram)
+        #center_of_mass = self.compute_center_of_mass_distance(self.current_floor, histogram)
 
-        # # Create dict as expected by backend
-        # self.last_snapshot = {
-        #     "simulation_id": self.simulation_id,
-        #     "current_floor": current_floor,
-        #     "last_floor": last_floor,
-        #     "time_idle": time_idle,
-        #     "timestamp": timestamp.isoformat(),
-        #     "floor_demand_histogram": histogram,
-        #     "hot_floor_last_30s": hot_floor,
-        #     "requests_entropy": entropy,
-        #     "mean_requested_floor": mean_floor,
-        #     "distance_to_center_of_mass": center_of_mass,
-        #     "next_floor_requested": None
-        # }
-        self.last_snapshot = {"current_floor": current_floor}
+        # Create dict as expected by backend
+        self.last_snapshot = {
+            #"simulation_id": self.simulation_id,
+            "current_floor": self.current_floor,
+            "last_floor": self.last_floor,
+            #"time_idle": time_idle,
+            #"timestamp": timestamp.isoformat(),
+            #"floor_demand_histogram": histogram,
+            #"hot_floor_last_30s": hot_floor,
+            #"requests_entropy": entropy,
+            #"mean_requested_floor": mean_floor,
+            #"distance_to_center_of_mass": center_of_mass,
+            "next_floor_requested": None
+        }
         print("snapshot created", self.last_snapshot)
 
     def post_snapshot(self):

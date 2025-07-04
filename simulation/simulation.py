@@ -107,6 +107,6 @@ if __name__ == "__main__":
         seed=31
     )
     print("Simulation started at:", sim.start_datetime)
-    sim.post_metadata() # save metadata before starting
+    #sim.post_metadata() # save metadata before starting
     sim.run()
     print("Simulation ended at:", sim.start_datetime + timedelta(seconds=sim.sim_time))
