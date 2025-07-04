@@ -1,0 +1,4 @@
+simpy
+requests
+numpy
+python-dotenv
