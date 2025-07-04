@@ -59,6 +59,7 @@ class DemandGenerator:
 
             # Generate a random request
             origin, destination = self.generate_origin_destination()
+            self.elevator.request_histogram[origin] += 1
 
             # We have label for the snapshot (next request), update, store and clean
             if self.elevator.last_snapshot:

@@ -51,7 +51,8 @@ class Simulation:
             env=self.env,
             floors=floors,
             speed_floors_per_sec=speed_floors_per_sec,
-            base_floor=base_floor
+            base_floor=base_floor,
+            simulation=self
         )
 
         self.demand_generator = DemandGenerator(
