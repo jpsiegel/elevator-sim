@@ -60,6 +60,13 @@ class DemandGenerator:
             # Generate a random request
             origin, destination = self.generate_origin_destination()
 
+            # We have label for the snapshot (next request), update, store and clean
+            if self.elevator.last_snapshot:
+                self.elevator.last_snapshot["next_floor_requested"] = origin
+                self.elevator.post_snapshot()
+                self.elevator.last_snapshot = None
+
+
             # Elevator gets a task to go to origin then to destination
             print(f"[{self.env.now:.1f}] Request: from {origin} to {destination}")
             self.elevator.add_task(origin)

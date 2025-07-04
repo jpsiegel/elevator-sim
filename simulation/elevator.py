@@ -1,5 +1,8 @@
+from datetime import timedelta
 from collections import deque
+import requests
 import simpy
+import os
 
 from params import DEFAULT_WAIT_TIME, DEFAULT_CHECK_TIME
 
@@ -7,7 +10,7 @@ from params import DEFAULT_WAIT_TIME, DEFAULT_CHECK_TIME
 class Elevator:
     def __init__(self, env: simpy.Environment, floors: tuple[int], speed_floors_per_sec: float, base_floor: int):
         """
-        Elevator agent, takes requests and moves across floors.
+        Elevator agent, takes requests and moves across floors and stores data of interest.
 
         Args:
             env: SimPy environment
@@ -20,6 +23,7 @@ class Elevator:
         self.speed = speed_floors_per_sec
         self.base_floor = base_floor if base_floor in self.floors else None
 
+        self.last_snapshot = None # stores data of interest
         self.current_floor = base_floor
         self.task_queue = deque()
         self.moving = False
@@ -92,4 +96,57 @@ class Elevator:
                 print(f"[{self.env.now:.1f}] Elevator vacant, going to floor {next_floor}")
                 yield self.env.process(self.move_to(next_floor))
 
+              # Here the elevator is vacant waiting for next requested floor,
+              # save a snapshot
+
+              self.save_snapshot(self.current_floor, None, None)
+
               yield self.env.timeout(DEFAULT_CHECK_TIME)
+
+    def save_snapshot(self, current_floor: int, last_floor: int, time_idle: float):
+        """
+        Captures elevator state when idle and relevant features.
+        Stores the data with expected backend format, but in memory to add label later.
+        """
+        # timestamp = self.start_datetime + timedelta(seconds=self.env.now)
+
+        # # Features to compute
+        # histogram = self.get_floor_demand_histogram()
+        # entropy = self.compute_entropy(histogram)
+        # hot_floor = self.get_hot_floor_last_30s()
+        # mean_floor = self.compute_mean_floor(histogram)
+        # center_of_mass = self.compute_center_of_mass_distance(current_floor, histogram)
+
+        # # Create dict as expected by backend
+        # self.last_snapshot = {
+        #     "simulation_id": self.simulation_id,
+        #     "current_floor": current_floor,
+        #     "last_floor": last_floor,
+        #     "time_idle": time_idle,
+        #     "timestamp": timestamp.isoformat(),
+        #     "floor_demand_histogram": histogram,
+        #     "hot_floor_last_30s": hot_floor,
+        #     "requests_entropy": entropy,
+        #     "mean_requested_floor": mean_floor,
+        #     "distance_to_center_of_mass": center_of_mass,
+        #     "next_floor_requested": None
+        # }
+        self.last_snapshot = {"current_floor": current_floor}
+        print("snapshot created", self.last_snapshot)
+
+    def post_snapshot(self):
+        """
+        Stores the completed snapshot in the backend database.
+        """
+        if not self.last_snapshot:
+            raise ValueError("No snapshot to store!")
+
+        # api_url = os.getenv("API_BASE_URL", "http://localhost:8000")
+        # endpoint = f"{api_url}/elevator_request"
+        # response = requests.post(endpoint, json=self.last_snapshot)
+
+        # if response.status_code != 200:
+        #     raise Exception(f"Failed to post elevator request: {response.status_code} {response.text}")
+        print(f"[{self.env.now:.1f}] Snapshot posted: {self.last_snapshot}")
+
+
