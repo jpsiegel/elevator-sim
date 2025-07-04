@@ -1,0 +1,8 @@
+FROM python:3.11-slim
+
+WORKDIR /sim
+
+COPY requirements.sim.txt .
+RUN pip install --no-cache-dir -r requirements.sim.txt
+
+COPY ./simulation_runner ./
