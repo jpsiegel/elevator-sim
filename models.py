@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, ForeignKey
+from sqlalchemy import Column, Integer, Float, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -17,6 +17,7 @@ class SimulationMetadata(Base):
     wait_time = Column(Float, nullable=False)  # seconds
     elevator_speed = Column(Float, nullable=False)  # floors/sec
     expo_lambda = Column(Float, nullable=False)  # req/sec
+    start_datetime = Column(DateTime, nullable=False) # Timestamp
     duration = Column(Integer, nullable=False)  # seconds
     base_floor = Column(Integer, nullable=True)
     base_floor_weight = Column(Float, nullable=True)  # chance multiplier
@@ -42,10 +43,10 @@ class ElevatorRequest(Base):
     current_floor = Column(Integer, nullable=False)
     last_floor = Column(Integer, nullable=False)
     time_idle = Column(Float, nullable=False)
-    timestamp = Column(Float, nullable=False)
+    timestamp = Column(DateTime, nullable=False)
 
     # Calculated indicators
-    floor_demand_histogram = Column(ARRAY(Integer), nullable=False)  # e.g., [1, 2, 0, 3, 1]
+    floor_demand_histogram = Column(ARRAY(Integer), nullable=False)  # eg: [1, 2, 0, 3, 1]
     hot_floor_last_30s = Column(Integer, nullable=True)
     requests_entropy = Column(Float, nullable=True)
     mean_requested_floor = Column(Float, nullable=True)
