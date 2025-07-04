@@ -1,3 +1,6 @@
+# yaml file to orquestrate the services of the system:
+# DB - API - Simulation
+
 version: "3.9"
 
 services:
